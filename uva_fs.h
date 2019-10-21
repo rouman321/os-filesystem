@@ -16,3 +16,6 @@ int uva_read_reset(int file_identifier);
 
 // Write the buffer to the end of the file.
 int uva_write(int file_identifier, char* buffer, int length);
+
+//reset the whole filesystem
+void reset()

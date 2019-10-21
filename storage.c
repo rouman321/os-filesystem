@@ -100,8 +100,9 @@ int disk_block_count() {
 }
 
 int nvm_write(int byte_number, int length, char* buffer) {
-    if (byte_number+length > NVM_LEN) return -1;
+    _storage_init();
 
+    if (byte_number+length > NVM_LEN) return -1;
     fseek(_file_nvm, byte_number, SEEK_SET);
     fwrite(buffer, 1, length, _file_nvm);
 

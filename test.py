@@ -207,6 +207,28 @@ def test_09_write_read_reset_read():
 		return -3
 	return 0
 
+def test_10_write_long():
+	'''
+	check both storage
+	'''
+	fd = uvafs.uva_open(b"test10.txt", True)
+	file_str = ("a"*70000).encode()
+	ret = uvafs.uva_write(fd, file_str, len(file_str))
+	if ret < 0: return -1
+	ret = uvafs.uva_close(fd)
+	if ret < 0: return -1
+
+	fd = uvafs.uva_open(b"test10.txt", False)
+	recv = ctypes.create_string_buffer(len(file_str))
+	recv_len = uvafs.uva_read(fd, recv, 0, len(file_str))
+	ret = uvafs.uva_close(fd)
+	if ret < 0: return -1
+	if recv_len != len(file_str):	return -2
+	if file_str != recv.raw:
+		print()
+		print(recv.raw)
+		return -3
+	return 0 
 
 
 def run_test(test):
@@ -228,15 +250,16 @@ uvafs = ctypes.CDLL('libuva_fs.so')
 
 
 
-run_test(test_01_create_file)
-run_test(test_02_create_read_file)
-run_test(test_03_longer_file)
-run_test(test_04_longer_file_rw)
-run_test(test_05_long_file_name)
-run_test(test_06_write_a_read_file)
-run_test(test_07_read_a_write_file)
-run_test(test_08_write_read_read)
-run_test(test_09_write_read_reset_read)
+# run_test(test_01_create_file)
+# run_test(test_02_create_read_file)
+# run_test(test_03_longer_file)
+# run_test(test_04_longer_file_rw)
+# run_test(test_05_long_file_name)
+# run_test(test_06_write_a_read_file)
+# run_test(test_07_read_a_write_file)
+# run_test(test_08_write_read_read)
+# run_test(test_09_write_read_reset_read)
+run_test(test_10_write_long)
 
 
 
