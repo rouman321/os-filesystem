@@ -177,6 +177,36 @@ def test_08_write_read_read():
 		return -3
 	return 0
 
+def test_09_write_read_reset_read():
+	'''
+	check read_reset
+	'''
+	fd = uvafs.uva_open(b"test09.txt", True)
+	file_str = get_lorem_bytes()
+	ret = uvafs.uva_write(fd, file_str, len(file_str))
+	if ret < 0: return -1
+	ret = uvafs.uva_close(fd)
+	if ret < 0: return -1
+
+	fd = uvafs.uva_open(b"test09.txt", False)
+	if fd < 0: return -1
+	l = int(len(file_str)/2)
+	recv = ctypes.create_string_buffer(l)
+	recv_len = uvafs.uva_read(fd, recv, 0, l)
+	if recv_len < 0: return -1
+	if recv_len != l: return -2
+	if file_str[:l] != recv.raw:	return -3
+	ret = uvafs.uva_read_reset(fd)
+	if ret < 0:	return -1
+	recv = ctypes.create_string_buffer(len(file_str))
+	recv_len = uvafs.uva_read(fd, recv, 0, len(file_str))
+	ret = uvafs.uva_close(fd)
+	if ret < 0: return -1
+	if recv_len != len(file_str):	return -2
+	if file_str != recv.raw:
+		return -3
+	return 0
+
 
 
 def run_test(test):
@@ -206,6 +236,7 @@ run_test(test_05_long_file_name)
 run_test(test_06_write_a_read_file)
 run_test(test_07_read_a_write_file)
 run_test(test_08_write_read_read)
+run_test(test_09_write_read_reset_read)
 
 
 
