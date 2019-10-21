@@ -164,13 +164,11 @@ def test_08_write_read_read():
 	if recv_len < 0: return -1
 	if recv_len != l: return -2
 	str_cmp = recv.raw
-	# print(str_cmp)
 	recv = ctypes.create_string_buffer(len(file_str)-l)
 	recv_len = uvafs.uva_read(fd, recv, 0, len(file_str))
 	str_cmp += recv.raw
 	ret = uvafs.uva_close(fd)
 	if ret < 0: return -1
-	# print(str_cmp)
 	if recv_len != len(file_str)-l:	return -2
 	if file_str != str_cmp:
 		print()
@@ -200,13 +198,13 @@ uvafs = ctypes.CDLL('libuva_fs.so')
 
 
 
-# run_test(test_01_create_file)
-# run_test(test_02_create_read_file)
-# run_test(test_03_longer_file)
-# run_test(test_04_longer_file_rw)
-# run_test(test_05_long_file_name)
-# run_test(test_06_write_a_read_file)
-# run_test(test_07_read_a_write_file)
+run_test(test_01_create_file)
+run_test(test_02_create_read_file)
+run_test(test_03_longer_file)
+run_test(test_04_longer_file_rw)
+run_test(test_05_long_file_name)
+run_test(test_06_write_a_read_file)
+run_test(test_07_read_a_write_file)
 run_test(test_08_write_read_read)
 
 

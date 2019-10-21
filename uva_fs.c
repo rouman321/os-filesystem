@@ -7,7 +7,7 @@
 
 typedef struct myFile{
 	int file_identifier;
-	char* filename;
+	char filename[256];
 	int state;// 0 unspecified, 1 read, 2 write
 	bool open;
 	int block;
@@ -55,7 +55,7 @@ int uva_open(char* filename, bool writeable) {
 	if(f==NULL){
 		printf("a new file\n");
 		f = malloc(sizeof(myFile));
-		f->filename = malloc(sizeof(filename));
+		// f->filename = malloc(sizeof(filename));
 		strcpy(f->filename,filename);
 		f->block = -1;
 		f->size = -1;
