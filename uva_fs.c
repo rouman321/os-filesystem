@@ -16,14 +16,29 @@ typedef struct myFile{
 } myFile;
 
 myFile* file_list[500] = {NULL};
+int file_cnt = 0;
+int block = 0;
+bool initialized = false;
+
+void init(){
+	printf("initializing\n");
+	for(int i = 0;i < file_cnt;i++){
+		if(file_list[i]==NULL){
+			break;
+		}
+		free(file_list[i]);
+	}
+	memset(file_list,NULL,500);
+	file_cnt = 0;
+	block = 0;
+	initialized = true;
+}
 
 int get_next_id(){
-	static int file_cnt = 0;
 	return file_cnt++;
 }
 
 int get_next_block(){
-	static int block = 0;
 	return block++;
 }
 
@@ -38,6 +53,9 @@ bool has_block(int block_num, int *block){
 }
 
 int uva_open(char* filename, bool writeable) {
+	if(!initialized){
+		init();
+	}
 	printf("opening %s\n",filename);
 	myFile* f = NULL;
 	int i = 0;
@@ -55,7 +73,6 @@ int uva_open(char* filename, bool writeable) {
 	if(f==NULL){
 		printf("a new file\n");
 		f = malloc(sizeof(myFile));
-		// f->filename = malloc(sizeof(filename));
 		strcpy(f->filename,filename);
 		f->block = -1;
 		f->size = -1;
@@ -184,4 +201,8 @@ int uva_write(int file_identifier, char* buffer, int length) {
 	printf("%d byte written.\n",size);
 	f->size = size;
 	return 0;
+}
+
+void reset(){
+	initialized = false;
 }
