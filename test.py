@@ -1,5 +1,6 @@
 import ctypes
 import random
+import time
 
 
 def get_lorem_bytes():
@@ -230,6 +231,47 @@ def test_10_write_long():
 		return -3
 	return 0 
 
+def test_11_create_many_file():
+	performance = []
+	for i in range(0,501,10):
+		uvafs.reset()
+		s = ("a"*256).encode()
+		start = time.time()
+		for j in range(i):
+			fd = uvafs.uva_open(b"%d.txt"%j,True)
+			uvafs.uva_write(fd, s, len(s))
+		performance.append(time.time()-start)
+	print(performance)
+	return 0
+
+def test_12_write_performance():
+	performance = []
+	for i in range(0,30001,1000):
+		s = ("a"*i).encode()
+		uvafs.reset()
+		start = time.time()
+		fd = uvafs.uva_open(b"test.txt",True)
+		uvafs.uva_write(fd,s,len(s))
+		performance.append(time.time()-start)
+	print(performance)
+	return 0
+
+def test_13_read_performance():
+	performance = []
+	s = ("a"*70000).encode()
+	fd = uvafs.uva_open(b"test.txt",True)
+	uvafs.uva_write(fd,s,len(s))
+	uvafs.uva_close(fd)
+	recv = ctypes.create_string_buffer(70001)
+	for i in range(1,70002,1000):
+		start = time.time()
+		uvafs.uva_open(b"test.txt",False)
+		recv_len = uvafs.uva_read(fd, recv, 0, i)
+		performance.append(time.time()-start)
+		uvafs.uva_read_reset(fd)
+		uvafs.uva_close(fd)
+	print(performance)
+	return 0
 
 def run_test(test):
 	print('Running test "{}"...'.format(test.__name__), end='')
@@ -238,7 +280,6 @@ def run_test(test):
 		print('SUCCESS')
 	else:
 		print('ERROR: {}'.format(ret))
-
 
 # To use C version, do this:
 uvafs = ctypes.CDLL('libuva_fs.so')
@@ -259,7 +300,10 @@ uvafs = ctypes.CDLL('libuva_fs.so')
 # run_test(test_07_read_a_write_file)
 # run_test(test_08_write_read_read)
 # run_test(test_09_write_read_reset_read)
-run_test(test_10_write_long)
+# run_test(test_10_write_long) # run seperately
+# run_test(test_11_create_many_file)
+run_test(test_12_write_performance)
+# run_test(test_13_read_performance)
 
 
 

@@ -24,12 +24,13 @@ bool initialized = false;
 int nvm = 0;
 
 void init(){
-	printf("initializing\n");
+	// printf("initializing\n");
 	for(int i = 0;i < file_cnt;i++){
 		if(file_list[i]==NULL){
 			break;
 		}
 		free(file_list[i]);
+		file_list[i] = NULL;
 	}
 	memset(file_list,NULL,500);
 	file_cnt = 0;
@@ -60,7 +61,7 @@ int uva_open(char* filename, bool writeable) {
 	if(!initialized){
 		init();
 	}
-	printf("opening %s\n",filename);
+	// printf("opening %s\n",filename);
 	myFile* f = NULL;
 	int i = 0;
 	while(file_list[i]!=NULL){
@@ -75,7 +76,7 @@ int uva_open(char* filename, bool writeable) {
 		i++;
 	}
 	if(f==NULL){
-		printf("a new file\n");
+		// printf("a new file\n");
 		f = malloc(sizeof(myFile));
 		strcpy(f->filename,filename);
 		f->block = -1;
@@ -92,7 +93,7 @@ int uva_open(char* filename, bool writeable) {
 	else{
 		f->state = 1;
 	}
-	printf("assigned %d\n",f->file_identifier);
+	// printf("assigned %d\n",f->file_identifier);
 	return f->file_identifier;
 }
 
@@ -108,7 +109,7 @@ int uva_close(int file_identifier) {
 
 int uva_read(int file_identifier, char* buffer, int offset, int length) {
 	myFile* f = file_list[file_identifier];
-	printf("reading file '%s' size: %d\n",f->filename,f->nvm_size+f->size);
+	// printf("reading file '%s' size: %d\n",f->filename,f->nvm_size+f->size);
 	if(f==NULL||f->state!=1){
 		// can't read
 		return -1;
@@ -118,14 +119,14 @@ int uva_read(int file_identifier, char* buffer, int offset, int length) {
 	int ret = 0;
 	int start = offset+f->cursor;
 	if(start>=f->size+f->nvm_size){
-		printf("skipped the whole file.\n");
+		// printf("skipped the whole file.\n");
 		return 0;
 	}
 	// read from nvm
 	if(f->start_nvm!=-1){
 		if(start>=f->nvm_size){
 			start -= f->nvm_size;
-			printf("skip nvm\n");
+			// printf("skip nvm\n");
 		}
 		else{
 			int read_len = f->nvm_size-start;
@@ -137,7 +138,7 @@ int uva_read(int file_identifier, char* buffer, int offset, int length) {
 				return -1;
 			}
 			ret += read_len;
-			printf("read %d bytes from nvm.\n", ret);
+			// printf("read %d bytes from nvm.\n", ret);
 			if(read_len==length){
 				f->cursor += read_len;
 				return length;
@@ -147,7 +148,7 @@ int uva_read(int file_identifier, char* buffer, int offset, int length) {
 		}
 	}
 	if(f->block!=-1){
-		printf("read from disk.\n");
+		// printf("read from disk.\n");
 		int s = 0;
 		int start_block = f->block;
 		while(s+512<start){
@@ -158,7 +159,7 @@ int uva_read(int file_identifier, char* buffer, int offset, int length) {
 		int m = 0;
 		while(len>0){
 			char mem[512]={0};
-			printf("read from block %d\n",start_block+i);
+			// printf("read from block %d\n",start_block+i);
 			if(-1==disk_read(start_block+i,mem)){
 				// read failed
 				return -1;
@@ -182,7 +183,7 @@ int uva_read(int file_identifier, char* buffer, int offset, int length) {
 			i++;
 		}
 	}
-	printf("%d byte read\n",ret);
+	// printf("%d byte read\n",ret);
 	f->cursor += ret;
 	return ret;
 }
@@ -205,7 +206,7 @@ int uva_write(int file_identifier, char* buffer, int length) {
 	// see if there are space in nvm
 	if(nvm < nvm_byte_count()){
 		// store into nvm
-		printf("write into nvm\n");
+		// printf("write into nvm\n");
 		f->start_nvm = nvm;
 		int space = nvm_byte_count()-nvm;
 		int cnt = 0;
@@ -219,8 +220,8 @@ int uva_write(int file_identifier, char* buffer, int length) {
 			nvm += cnt;
 			f->nvm_size = cnt;
 			if(cnt==length){
-				printf("nvm is enough.\n");
-				printf("%d bytes written\n",cnt);
+				// printf("nvm is enough.\n");
+				// printf("%d bytes written\n",cnt);
 				return 0;
 			}
 			s = cnt;
@@ -237,7 +238,7 @@ int uva_write(int file_identifier, char* buffer, int length) {
 		// no space for write
 		return -1;
 	}
-	printf("block %d assigned\n",block);
+	// printf("block %d assigned\n",block);
 	f->block = block;
 	int size = 0;
 	for(int i = f->block;i < f->block+block_num;i++){
@@ -246,14 +247,14 @@ int uva_write(int file_identifier, char* buffer, int length) {
 			buff[j] = buffer[(i-f->block)*512+j+s];
 			size++;
 		}
-		printf("write to block %d",i);
+		// printf("write to block %d",i);
 		if(-1==disk_write(i,buff)){
-			printf("\tfailed\n");
+			// printf("\tfailed\n");
 			return -1;
 		}
-		printf("\tsuccess\n");
+		// printf("\tsuccess\n");
 	}
-	printf("%d byte written.\n",size);
+	// printf("%d byte written.\n",size);
 	f->size = size;
 	return 0;
 }
